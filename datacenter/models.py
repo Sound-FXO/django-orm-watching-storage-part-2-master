@@ -11,7 +11,7 @@ class Passcard(models.Model):
     def __str__(self):
         if self.is_active:
             return self.owner_name
-        return f'{self.owner_name} (inactive)'
+        return f"{self.owner_name} (inactive)"
 
 
 class Visit(models.Model):
@@ -21,43 +21,40 @@ class Visit(models.Model):
     leaved_at = models.DateTimeField(null=True)
 
     def __str__(self):
-        return '{user} entered at {entered} {leaved}'.format(
+        return "{user} entered at {entered} {leaved}".format(
             user=self.passcard.owner_name,
             entered=self.entered_at,
-            leaved=(
-                f'leaved at {self.leaved_at}'
-                if self.leaved_at else 'not leaved'
-            )
+            leaved=(f"leaved at {self.leaved_at}" if self.leaved_at else "not leaved"),
         )
 
+
 def get_duration(visit):
-    entrance_time = localtime(visit.entered_at)
-    local_time = localtime()
-    delta = local_time - entrance_time
-    duration = delta.total_seconds()
-    return duration
+    if visit.leaved_at:
+        entrance_time = localtime(visit.entered_at)
+        leaving_time = localtime(visit.leaved_at)
+        delta = leaving_time - entrance_time
+        duration = delta.seconds
+        return duration
+    else:
+        entrance_time = localtime(visit.entered_at)
+        local_time = localtime()
+        delta = local_time - entrance_time
+        duration = delta.total_seconds()
+        return duration
 
 
 def format_duration(duration):
-    formatted_duration = f'{int(duration) // 3600}:{(int(duration) % 3600) // 60}'
+    hours, mins = int(duration) // 3600, int(duration % 3600) // 60
+    formatted_duration = f"{hours}:{mins}"
     return formatted_duration
 
 
 def is_visit_long(visit, minutes=60):
-    if visit.leaved_at is not True:
-        entrance_time = localtime(visit.entered_at)
-        leaving_time = localtime(visit.leaved_at)
-        delta = leaving_time - entrance_time
-        visit_duration = delta.seconds
-        visit_duration = visit_duration / 60
-        if visit_duration > minutes:
-            return True
-        else:
-            return False
+    if visit.leaved_at:
+        visit_duration = get_duration(visit)
+        visit_duration = visit_duration / minutes
+        return visit_duration > minutes
     else:
         visit_duration = get_duration(visit)
-        visit_duration = visit_duration / 60
-        if visit_duration > minutes:
-            return True
-        else:
-            return False
+        visit_duration = visit_duration / minutes
+        return visit_duration > minutes

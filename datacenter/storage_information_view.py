@@ -1,4 +1,3 @@
-from datacenter.models import Passcard
 from datacenter.models import Visit
 from django.shortcuts import render
 from django.utils.timezone import localtime
@@ -13,15 +12,21 @@ def storage_information_view(request):
 
     for person in not_left:
         person_data = {}
-        duration = get_duration(person)
-        duration = format_duration(duration)
+        duration = format_duration(get_duration(person))
         person_name = person.passcard
-        entrance_time = (localtime(person.entered_at))
+        entrance_time = localtime(person.entered_at)
         is_strange = is_visit_long(person)
-        person_data.update({'who_entered': person_name, 'entered_at': entrance_time, 'duration': duration, 'is_strange': is_strange})
+        person_data.update(
+            {
+                "who_entered": person_name,
+                "entered_at": entrance_time,
+                "duration": duration,
+                "is_strange": is_strange,
+            }
+        )
         non_closed_visits.append(person_data)
 
     context = {
-        'non_closed_visits': non_closed_visits,
+        "non_closed_visits": non_closed_visits,
     }
-    return render(request, 'storage_information.html', context)
+    return render(request, "storage_information.html", context)

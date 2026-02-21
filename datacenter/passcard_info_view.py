@@ -7,8 +7,6 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 
 
-
-
 def passcard_info_view(request, passcode):
 
     passcard = get_object_or_404(Passcard, passcode=passcode)
@@ -19,14 +17,12 @@ def passcard_info_view(request, passcode):
         visit_data = {}
         entered_at = visit.entered_at
         delta = localtime(visit.leaved_at) - localtime(visit.entered_at)
-        duration = delta.total_seconds()
-        duration = format_duration(duration)
+        duration = format_duration(delta.total_seconds())
         is_strange = is_visit_long(visit)
-        visit_data.update({'entered_at': entered_at, 'duration': duration, 'is_strange': is_strange})
+        visit_data.update(
+            {"entered_at": entered_at, "duration": duration, "is_strange": is_strange}
+        )
         this_passcard_visits.append(visit_data)
 
-    context = {
-        'passcard': passcard,
-        'this_passcard_visits': this_passcard_visits
-    }
-    return render(request, 'passcard_info.html', context)
+    context = {"passcard": passcard, "this_passcard_visits": this_passcard_visits}
+    return render(request, "passcard_info.html", context)
