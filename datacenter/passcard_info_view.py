@@ -14,14 +14,15 @@ def passcard_info_view(request, passcode):
     this_passcard_visits = []
 
     for visit in visits:
-        visit_data = {}
         entered_at = visit.entered_at
         delta = localtime(visit.leaved_at) - localtime(visit.entered_at)
         duration = format_duration(delta.total_seconds())
         is_strange = is_visit_long(visit)
-        visit_data.update(
-            {"entered_at": entered_at, "duration": duration, "is_strange": is_strange}
-        )
+        visit_data = {
+            "entered_at": entered_at,
+            "duration": duration,
+            "is_strange": is_strange
+        }
         this_passcard_visits.append(visit_data)
 
     context = {"passcard": passcard, "this_passcard_visits": this_passcard_visits}
